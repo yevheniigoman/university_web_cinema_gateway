@@ -7,15 +7,15 @@ import static com.iasaweb.cinemagateway.filter.RoleFilter.hasRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
+import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
 import static org.springframework.cloud.gateway.server.mvc.predicate.GatewayRequestPredicates.path;
-import static org.springframework.web.servlet.function.RequestPredicates.GET;
+import static org.springframework.web.servlet.function.RequestPredicates.*;
 
 import java.util.List;
 
@@ -33,18 +33,16 @@ public class CinemaGatewayApplication {
 	}
 
 	@Bean
-	public RouterFunction<ServerResponse> userRoutes() {
-		return GatewayRouterFunctions
-				.route("users_route")
+	public RouterFunction<ServerResponse> usersRoute() {
+		return route("users_route")
 				.route(path("/register", "/login"), http())
 				.before(uri(userServiceUri))
 				.build();
 	}
 
 	@Bean
-	RouterFunction<ServerResponse> movieRoutes(JwtValidationService jwtValidationService) {
-		return GatewayRouterFunctions
-				.route("movies_route")
+	RouterFunction<ServerResponse> moviesRoute(JwtValidationService jwtValidationService) {
+		return route("movies_route")
 				.route(path("/movies/**"), http())
 				.before(uri(showServiceUri))
 				.filter(isAuthenticated(jwtValidationService))
@@ -64,11 +62,29 @@ public class CinemaGatewayApplication {
 	}
 
 	@Bean
-	RouterFunction<ServerResponse> showRoutes(JwtValidationService jwtDecodeService) {
-		return GatewayRouterFunctions
-				.route("shows_route")
+	RouterFunction<ServerResponse> ticketsRoute(JwtValidationService jwtValidationService) {
+		return route("tickets_route")
+				.route(path("/shows/{show_id}/tickets"), http())
+				.before(uri(showServiceUri))
+				.filter(isAuthenticated(jwtValidationService))
+				.build();
+	}
+
+	@Bean
+	RouterFunction<ServerResponse> showsGetRoute() {
+		return route("shows_get_route")
 				.route(GET("/shows/**"), http())
 				.before(uri(showServiceUri))
+				.build();
+	}
+
+	@Bean
+	RouterFunction<ServerResponse> showsPostAndPutRoute(JwtValidationService jwtValidationService) {
+		return route("shows_post_put_route")
+				.route(POST("/shows/**").and(PUT("/shows/**")), http())
+				.before(uri(showServiceUri))
+				.filter(isAuthenticated(jwtValidationService))
+				.filter(hasRole("ROLE_ADMIN"))
 				.build();
 	}
 }
