@@ -3,7 +3,7 @@ package com.iasaweb.cinemagateway.filter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.function.HandlerFilterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
-import java.util.List;
+
 import java.util.Optional;
 
 public class RoleFilter {
@@ -14,8 +14,8 @@ public class RoleFilter {
                 return ServerResponse.status(HttpStatus.FORBIDDEN).build();
             }
 
-            List<String> roles = (List<String>) result.get();
-            if (!roles.contains(role)) {
+            String roles = (String) result.get();
+            if (!roles.equals(role)) {
                 return ServerResponse.status(HttpStatus.FORBIDDEN).build();
             }
             return next.handle(request);

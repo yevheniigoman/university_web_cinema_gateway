@@ -17,8 +17,6 @@ import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFu
 import static org.springframework.cloud.gateway.server.mvc.predicate.GatewayRequestPredicates.path;
 import static org.springframework.web.servlet.function.RequestPredicates.*;
 
-import java.util.List;
-
 @SpringBootApplication
 public class CinemaGatewayApplication {
 
@@ -52,9 +50,9 @@ public class CinemaGatewayApplication {
 							.from(request)
 							.headers(httpHeaders -> {
 								String username = request.attribute("username").orElse("").toString();
-								List<String> roles = (List<String>) request.attribute("roles").orElse(List.of());
+								String roles = (String) request.attribute("roles").orElse("");
 								httpHeaders.add("Cinema-User", username);
-								httpHeaders.add("Cinema-Roles", String.join(" ", roles));
+								httpHeaders.add("Cinema-Roles", roles);
 							})
 							.build();
 				})

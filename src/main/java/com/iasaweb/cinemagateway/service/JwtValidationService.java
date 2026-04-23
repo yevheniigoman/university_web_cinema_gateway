@@ -2,18 +2,18 @@ package com.iasaweb.cinemagateway.service;
 
 import com.iasaweb.cinemagateway.dto.JwtDto;
 import com.iasaweb.cinemagateway.exception.JwtValidationException;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.io.Decoders;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-
 import java.util.Date;
-import java.util.List;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -51,7 +51,7 @@ public class JwtValidationService {
                 .parseSignedClaims(jwt)
                 .getPayload();
         String username = claims.getSubject();
-        List<String> roles = claims.get("roles", List.class);
+        String roles = claims.get("roles", String.class);
         Date date = claims.getExpiration();
         ZonedDateTime expiration = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
         return new JwtDto(username, roles, expiration);
