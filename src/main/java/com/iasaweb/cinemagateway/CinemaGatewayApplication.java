@@ -65,6 +65,17 @@ public class CinemaGatewayApplication {
 				.route(path("/shows/{show_id}/tickets"), http())
 				.before(uri(showServiceUri))
 				.filter(isAuthenticated(jwtValidationService))
+				.before(request -> {
+					return ServerRequest
+							.from(request)
+							.headers(httpHeaders -> {
+								String username = request.attribute("username").orElse("").toString();
+								String roles = (String) request.attribute("roles").orElse("");
+								httpHeaders.add("Cinema-User", username);
+								httpHeaders.add("Cinema-Roles", roles);
+							})
+							.build();
+				})
 				.build();
 	}
 
